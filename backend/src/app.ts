@@ -5,8 +5,7 @@ import cors from 'cors';
 import admin from 'firebase-admin';
 
 // has to be before every custom module
-import dotenv from 'dotenv';
-dotenv.config();
+import './configuration/dotenv';
 
 import { sequelize } from './db/';
 import { Client } from './models/Client';
@@ -31,6 +30,8 @@ const main = async () => {
   app.use('*', cors());
   app.use(compression());
   app.use(express.json()); // allow app toaccept json
+
+  app.use(express.static(__dirname + '/build'));
 
   app.get('/', (req: Request, res: Response, next: NextFunction) => {
     res.send('Hello');
