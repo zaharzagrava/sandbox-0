@@ -31,7 +31,7 @@ const main = async () => {
   app.use(compression());
   app.use(express.json()); // allow app toaccept json
 
-  app.use(express.static(__dirname + '/build'));
+  app.use(express.static(__dirname + '/clientbuild'));
 
   app.get('/', (req: Request, res: Response, next: NextFunction) => {
     res.send('Hello');

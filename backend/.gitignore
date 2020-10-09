@@ -117,3 +117,6 @@ dist
 
 # credentials
 credentials/
+
+# clientbuild generated with npm run build
+clientbuild/
