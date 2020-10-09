@@ -14,3 +14,7 @@ export interface TaskDT {
   task_priority: number;
   due_date: Date;
 }
+
+export interface CookiesDT {
+  idToken: string;
+}

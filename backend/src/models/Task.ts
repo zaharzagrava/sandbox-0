@@ -28,5 +28,6 @@ export const Task = sequelize.define(
   },
   {
     freezeTableName: true,
+    tableName: 'task',
   }
 );

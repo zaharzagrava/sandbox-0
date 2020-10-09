@@ -24,5 +24,6 @@ export const Client = sequelize.define(
   },
   {
     freezeTableName: true,
+    tableName: 'client',
   }
 );
