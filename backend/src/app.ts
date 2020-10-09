@@ -114,7 +114,7 @@ const main = async () => {
   //   res.json({ deleted: id });
   // });
 
-  app.listen(process.env.port || 4000, () => {
+  app.listen(process.env.PORT || 4000, () => {
     console.log(
       `Express server is listening on port ${process.env.port || 4000}`
     );
