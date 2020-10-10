@@ -27,3 +27,15 @@ export const NClient = 'client';
 export const NTask = 'task';
 
 export type NamesDataType = typeof NClient | typeof NClient;
+
+/* Form Data Types */
+export interface RegisterDT {
+  client_name: string;
+  email: string;
+  client_password: string;
+}
+
+export interface LoginDT {
+  email: string;
+  client_password: string;
+}

@@ -33,7 +33,11 @@ const main = async () => {
 
   // undefeind is to make postman agent work
   // http://localhost:3000 is to make dev version of front end to work with backend
-  const whitelist = ['http://localhost:3000', undefined];
+  const whitelist = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    undefined,
+  ];
   const corsOptions = {
     origin: function (origin: any, callback: any) {
       if (whitelist.indexOf(origin) !== -1) {
