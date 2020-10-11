@@ -69,6 +69,9 @@ const main = async () => {
       } else {
         // Test authorization
         if (!req.url.includes('/signup')) {
+          console.log('@cookies');
+          console.log(cookies);
+
           // Get clientId from idToken
           if (cookies.idToken === undefined || cookies.idToken === '') {
             console.log('Error at: app.use(auth)');
@@ -101,7 +104,7 @@ const main = async () => {
         }
       }
     } catch (error) {
-      console.log("Error at: app.post('/signup')");
+      console.log('Error at: app.use(auth)');
       console.log(error);
       res.statusCode = 500;
       res.send(error);
@@ -124,6 +127,9 @@ const main = async () => {
           client_password: newClientData.client_password,
         });
 
+        console.log('@newClient');
+        console.log(newClient);
+
         // Register firebase user
         const newClientFB = await admin.auth().createUser({
           email: newClient.email,
@@ -131,6 +137,9 @@ const main = async () => {
           password: newClient.client_password,
           displayName: newClient.client_name,
         });
+
+        console.log('@newClientFB');
+        console.log(newClientFB);
 
         // Update our database with firebase user id
         await Client.update<any>(
