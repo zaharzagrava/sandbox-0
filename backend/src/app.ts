@@ -3,6 +3,7 @@ import compression from 'compression';
 import cors from 'cors';
 import admin from 'firebase-admin';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 // has to be before every custom module
 import './configuration/dotenv';
@@ -13,6 +14,8 @@ import { Task } from './models/Task';
 import './models/ClientTask'; // create relations between models
 import { ClientDT, CookiesDT, TaskDT } from './types';
 import { ClientTask } from './models/ClientTask';
+
+const clientReserbedURLs = ['/login', '/register'];
 
 const main = async () => {
   if (!admin.apps.length) {
@@ -57,37 +60,42 @@ const main = async () => {
   app.use(async function (req: Request, res: Response, next: NextFunction) {
     try {
       const cookies: CookiesDT = req.cookies;
-      // Test authorization
-      if (!req.url.includes('/signup')) {
-        // Get clientId from idToken
-        if (cookies.idToken === undefined || cookies.idToken === '') {
-          console.log('Error at: app.use(auth)');
-          console.log(
-            `cookies.idToken === undefined || cookies.idToken === ''`
-          );
-          res.statusCode = 400;
-          res.send(`cookies.idToken === undefined || cookies.idToken === ''`);
-        } else {
-          let decodedIdToken: admin.auth.DecodedIdToken = await admin
-            .auth()
-            .verifyIdToken(cookies.idToken);
-          let firebase_id = decodedIdToken.uid;
 
-          let data = await Client.findAll<any>({
-            where: {
-              firebase_id: firebase_id,
-            },
-          });
+      if (req.url.includes('/login') || req.url.includes('/register')) {
+        res.sendFile(path.join(__dirname + '/clientbuild/index.html'));
+      } else {
+        // Test authorization
+        if (!req.url.includes('/signup')) {
+          // Get clientId from idToken
+          if (cookies.idToken === undefined || cookies.idToken === '') {
+            console.log('Error at: app.use(auth)');
+            console.log(
+              `cookies.idToken === undefined || cookies.idToken === ''`
+            );
+            res.statusCode = 400;
+            res.send(`cookies.idToken === undefined || cookies.idToken === ''`);
+          } else {
+            let decodedIdToken: admin.auth.DecodedIdToken = await admin
+              .auth()
+              .verifyIdToken(cookies.idToken);
+            let firebase_id = decodedIdToken.uid;
 
-          if (data.length === 0) {
-            throw new Error('User is not authorized');
+            let data = await Client.findAll<any>({
+              where: {
+                firebase_id: firebase_id,
+              },
+            });
+
+            if (data.length === 0) {
+              throw new Error('User is not authorized');
+            }
+
+            res.locals.clientId = data[0].id;
+            next();
           }
-
-          res.locals.clientId = data[0].id;
+        } else {
           next();
         }
-      } else {
-        next();
       }
     } catch (error) {
       console.log("Error at: app.post('/signup')");
@@ -154,11 +162,6 @@ const main = async () => {
       }
     }
   );
-
-  // cofirm email (GET)
-  app.get('/confirm', (req: Request, res: Response, next: NextFunction) => {
-    res.send('3');
-  });
 
   // /* Task Routes */
   app.get('/tasks', async (req, res) => {
