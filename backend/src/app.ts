@@ -36,9 +36,9 @@ const main = async () => {
   // undefeind is to make postman agent work
   // http://localhost:3000 is to make dev version of front end to work with backend
   const whitelist = [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    undefined,
+    'http://localhost:3000', // for dev
+    'https://sandbox-123.herokuapp.com', // for production
+    undefined, // for postman agent
   ];
   const corsOptions = {
     origin: function (origin: any, callback: any) {
