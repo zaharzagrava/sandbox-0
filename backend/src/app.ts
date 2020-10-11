@@ -162,11 +162,17 @@ const main = async () => {
       } catch (error) {
         console.log("Error at: app.post('/signup')");
 
-        if (error.errors[0].message.includes('client_name must be unique')) {
+        if (
+          error?.errors[0] &&
+          error.errors[0].message.includes('client_name must be unique')
+        ) {
           res.statusCode = 400;
           res.statusMessage = 'client_name must be unique';
           res.send('client_name must be unique');
-        } else if (error.errors[0].message.includes('email must be unique')) {
+        } else if (
+          error?.errors[0] &&
+          error.errors[0].message.includes('email must be unique')
+        ) {
           res.statusCode = 400;
           res.statusMessage = 'email must be unique';
           res.send('email must be unique');
