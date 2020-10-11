@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { AuthActionCreators, LoginStatus } from './redux/client';
+import { ClientActionCreators, LoginStatus } from './redux/client';
 import { StateType } from './types';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
 
 import { firebase, getIdToken } from './backendapi/firebase';
-import { ListFormat } from 'typescript';
 import AuthorizePage from './pages/AuthorizePage/AuthorizePage';
 import TaskPage from './pages/TaskPage/TaskPage';
 import { cookies } from './utils/utils';
@@ -27,7 +25,6 @@ function App() {
   );
 
   useEffect(() => {
-
     firebase.auth().onAuthStateChanged((user) => {
       exec(user);
     });
@@ -39,15 +36,15 @@ function App() {
         // if user isn't null then we logged in
         if (user) {
           dispatch(
-            AuthActionCreators.loginStatusUpdated(LoginStatus.LOGGED_IN)
+            ClientActionCreators.loginStatusUpdated(LoginStatus.LOGGED_IN)
           );
 
           const idToken = await getIdToken();
-          dispatch(AuthActionCreators.idTokenUpdated(idToken));
+          dispatch(ClientActionCreators.idTokenUpdated(idToken));
           cookies.set('idToken', idToken, { path: '/' });
         } else {
           dispatch(
-            AuthActionCreators.loginStatusUpdated(LoginStatus.LOGGED_OUT)
+            ClientActionCreators.loginStatusUpdated(LoginStatus.LOGGED_OUT)
           );
         }
       } catch (error) {
@@ -59,7 +56,7 @@ function App() {
       setTimeout(() => {
         getIdToken()
           .then((idToken) => {
-            dispatch(AuthActionCreators.idTokenUpdated(idToken));
+            dispatch(ClientActionCreators.idTokenUpdated(idToken));
           })
           .catch((error) => {
             console.log('App/useEffect/setTimeout');

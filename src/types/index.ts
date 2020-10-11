@@ -39,3 +39,29 @@ export interface LoginDT {
   email: string;
   client_password: string;
 }
+
+/* REST Queries Types */
+export interface GetTasksArgs {}
+
+export interface PostTaskArgs {
+  title?: string;
+  task_description?: string;
+  is_done?: boolean;
+  task_priority?: number;
+  due_date?: Date;
+}
+
+export type PutTaskArgs = TaskDT;
+
+export interface DeleteTaskArgs {
+  id: number;
+}
+
+/* */
+
+export enum FilterOptions {
+  ACTIVE_FIRST = 'Active First',
+  COMPLETED_FIRST = 'Completed First',
+  DURATION_DATE = 'Duration Date',
+  PRIORITY = 'Priority',
+}

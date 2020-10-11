@@ -6,6 +6,9 @@ import { firebase } from './backendapi/firebase';
 
 // Importing CSS Styles
 import './utils/global/global.scss';
+import 'react-datepicker/dist/react-datepicker.css';
+
+import './utils/utils';
 
 // --- Importing Redux
 import { createStore, compose } from 'redux';
@@ -27,7 +30,7 @@ declare global {
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(RootReducer, composeEnhancers());
 
-// firebase.auth().signOut();
+firebase.auth().signOut();
 
 ReactDOM.render(
   <>

@@ -112,26 +112,48 @@ const main = async () => {
       // username / email / password cannot be blank
       // username / email / password should be unique
       // passsword > 6 chars
+      console.log('signup');
 
       try {
         const newClientData: ClientDT = req.body;
         const cookies: CookiesDT = req.cookies;
 
-        const newClient = await Client.create({
+        const newClient = await Client.create<any>({
           client_name: newClientData.client_name,
           email: newClientData.email,
           client_password: newClientData.client_password,
         });
 
-        console.log(newClient);
+        await admin.auth().createUser({
+          email: newClient.email,
+          emailVerified: false,
+          password: newClient.passsword,
+          displayName: newClient.client_name,
+        });
+
+        console.log('@newClient');
 
         res.json(newClient);
       } catch (error) {
         console.log("Error at: app.post('/signup')");
-        console.log(error);
-        res.statusCode = 500;
 
-        res.send(error);
+        if (error.errors[0].message.includes('client_name must be unique')) {
+          console.log('@1');
+          res.statusCode = 400;
+          res.statusMessage = 'client_name must be unique';
+          res.send('client_name must be unique');
+        } else if (error.errors[0].message.includes('email must be unique')) {
+          console.log('@2');
+
+          res.statusCode = 400;
+          res.statusMessage = 'email must be unique';
+          res.send('email must be unique');
+        } else {
+          res.statusCode = 500;
+          res.send({
+            message: 'Internal server error',
+          });
+        }
       }
     }
   );
@@ -223,7 +245,17 @@ const main = async () => {
   app.put('/tasks/:id', async (req, res) => {
     try {
       // TODO: check wether body is of correct form
-      const toUpdateTaskData: TaskDT = req.body;
+      const toUpdateTaskData: any = {};
+      for (const key in req.body) {
+        if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+          const property = req.body[key];
+          toUpdateTaskData[key] = property;
+        }
+      }
+
+      console.log('@toUpdateTaskData');
+      console.log(toUpdateTaskData);
+
       const clientId: number = res.locals.clientId;
       const taskId = req.params.id;
 
@@ -250,21 +282,12 @@ const main = async () => {
         );
       } else {
         // insert record into Task table
-        const updatedTask = await Task.update<any>(
-          {
-            title: toUpdateTaskData.title,
-            task_description: toUpdateTaskData.task_description,
-            is_done: toUpdateTaskData.is_done,
-            task_priority: toUpdateTaskData.task_priority,
-            due_date: toUpdateTaskData.due_date,
+        const updatedTask = await Task.update<any>(toUpdateTaskData, {
+          where: {
+            id: taskId,
           },
-          {
-            where: {
-              id: taskId,
-            },
-            returning: true,
-          }
-        );
+          returning: true,
+        });
 
         res.json(updatedTask);
       }
