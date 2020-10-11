@@ -164,6 +164,7 @@ const main = async () => {
 
         if (
           error?.errors[0] &&
+          error.errors !== undefined &&
           error.errors[0].message.includes('client_name must be unique')
         ) {
           res.statusCode = 400;
@@ -171,6 +172,7 @@ const main = async () => {
           res.send('client_name must be unique');
         } else if (
           error?.errors[0] &&
+          error.errors !== undefined &&
           error.errors[0].message.includes('email must be unique')
         ) {
           res.statusCode = 400;
