@@ -30,7 +30,7 @@ declare global {
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(RootReducer, composeEnhancers());
 
-firebase.auth().signOut();
+// firebase.auth().signOut();
 
 ReactDOM.render(
   <>

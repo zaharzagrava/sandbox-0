@@ -21,6 +21,10 @@ export const Client = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    firebase_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     freezeTableName: true,

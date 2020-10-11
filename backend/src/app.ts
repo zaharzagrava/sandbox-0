@@ -1,5 +1,4 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
-import { Sequelize } from 'sequelize';
 import compression from 'compression';
 import cors from 'cors';
 import admin from 'firebase-admin';
@@ -54,50 +53,46 @@ const main = async () => {
   app.use(express.json()); // allow app toaccept json
   app.use(cookieParser());
   app.use(express.static(__dirname + '/clientbuild'));
+
   app.use(async function (req: Request, res: Response, next: NextFunction) {
     try {
-      const newClientData: ClientDT = req.body;
       const cookies: CookiesDT = req.cookies;
-
       // Test authorization
       if (!req.url.includes('/signup')) {
-        // // Get clientId from idToken
-        // let clientId = undefined;
-        // if (cookies.idToken === undefined || cookies.idToken === '') {
-        //   console.log('Error at: app.use(auth)');
-        //   console.log(`cookies.idToken === undefined || cookies.idToken === ''`);
-        //   res.send(`cookies.idToken === undefined || cookies.idToken === ''`);
-        // } else {
-        //   console.log('@idToken: ' + cookies.idToken);
+        // Get clientId from idToken
+        if (cookies.idToken === undefined || cookies.idToken === '') {
+          console.log('Error at: app.use(auth)');
+          console.log(
+            `cookies.idToken === undefined || cookies.idToken === ''`
+          );
+          res.statusCode = 400;
+          res.send(`cookies.idToken === undefined || cookies.idToken === ''`);
+        } else {
+          let decodedIdToken: admin.auth.DecodedIdToken = await admin
+            .auth()
+            .verifyIdToken(cookies.idToken);
+          let firebase_id = decodedIdToken.uid;
 
-        //   let decodedIdToken: admin.auth.DecodedIdToken = await admin
-        //     .auth()
-        //     .verifyIdToken(cookies.idToken);
-        //   let uid = decodedIdToken.uid;
+          let data = await Client.findAll<any>({
+            where: {
+              firebase_id: firebase_id,
+            },
+          });
 
-        //   let data = await Client.findAll({
-        //     where: {
-        //       uid: uid,
-        //     },
-        //   });
+          if (data.length === 0) {
+            throw new Error('User is not authorized');
+          }
 
-        //   if (data.length === 0) {
-        //     throw new Error('User is not authorized');
-        //   }
-
-        //   // res.locals.clientId = data[0].id;
-        //   res.locals.clientId = 5;
-        // }
-
-        res.locals.clientId = 1;
+          res.locals.clientId = data[0].id;
+          next();
+        }
+      } else {
+        next();
       }
-
-      next();
     } catch (error) {
       console.log("Error at: app.post('/signup')");
       console.log(error);
       res.statusCode = 500;
-
       res.send(error);
     }
   });
@@ -108,43 +103,45 @@ const main = async () => {
   app.post(
     '/signup',
     async (req: Request, res: Response, next: NextFunction) => {
-      // TODO: check wether body is of correct form
-      // username / email / password cannot be blank
-      // username / email / password should be unique
-      // passsword > 6 chars
-      console.log('signup');
-
       try {
         const newClientData: ClientDT = req.body;
-        const cookies: CookiesDT = req.cookies;
 
+        // Register our user, and test whether username / email are valid
         const newClient = await Client.create<any>({
           client_name: newClientData.client_name,
           email: newClientData.email,
           client_password: newClientData.client_password,
         });
 
-        await admin.auth().createUser({
+        // Register firebase user
+        const newClientFB = await admin.auth().createUser({
           email: newClient.email,
           emailVerified: false,
-          password: newClient.passsword,
+          password: newClient.client_password,
           displayName: newClient.client_name,
         });
 
-        console.log('@newClient');
+        // Update our database with firebase user id
+        await Client.update<any>(
+          {
+            firebase_id: newClientFB.uid,
+          },
+          {
+            where: {
+              id: newClient.id,
+            },
+          }
+        );
 
         res.json(newClient);
       } catch (error) {
         console.log("Error at: app.post('/signup')");
 
         if (error.errors[0].message.includes('client_name must be unique')) {
-          console.log('@1');
           res.statusCode = 400;
           res.statusMessage = 'client_name must be unique';
           res.send('client_name must be unique');
         } else if (error.errors[0].message.includes('email must be unique')) {
-          console.log('@2');
-
           res.statusCode = 400;
           res.statusMessage = 'email must be unique';
           res.send('email must be unique');
@@ -207,14 +204,12 @@ const main = async () => {
       console.log("Error at: app.get('/tasks')");
       console.log(error);
       res.statusCode = 500;
-
       res.send(error);
     }
   });
 
   app.post('/tasks', async (req, res) => {
     try {
-      // TODO: check wether body is of correct form
       const newTaskData: TaskDT = req.body;
       const clientId: number = res.locals.clientId;
 
@@ -244,7 +239,6 @@ const main = async () => {
 
   app.put('/tasks/:id', async (req, res) => {
     try {
-      // TODO: check wether body is of correct form
       const toUpdateTaskData: any = {};
       for (const key in req.body) {
         if (Object.prototype.hasOwnProperty.call(req.body, key)) {
@@ -252,9 +246,6 @@ const main = async () => {
           toUpdateTaskData[key] = property;
         }
       }
-
-      console.log('@toUpdateTaskData');
-      console.log(toUpdateTaskData);
 
       const clientId: number = res.locals.clientId;
       const taskId = req.params.id;
@@ -301,7 +292,6 @@ const main = async () => {
 
   app.delete('/tasks/:id', async (req, res) => {
     try {
-      // TODO: check wether body is of correct form
       const clientId: number = res.locals.clientId;
       const taskId = req.params.id;
 

@@ -14,7 +14,8 @@ const validationSchema = yup.object({
   email: yup.string().email('Invalid Email').required('Required'),
   client_password: yup
     .string()
-    .min(6, 'Password must be at least 6 characters long'),
+    .min(6, 'Password must be at least 6 characters long')
+    .required('Required'),
 });
 
 // interface Props {}

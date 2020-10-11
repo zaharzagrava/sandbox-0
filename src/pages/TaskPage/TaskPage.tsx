@@ -9,6 +9,7 @@ import { ClientActionCreators } from '../../redux/client';
 import { useDispatch } from 'react-redux';
 
 import { firebase } from '../../backendapi/firebase';
+import { queryCache } from 'react-query';
 
 // interface Props {}
 
@@ -31,13 +32,20 @@ function TaskPage(): ReactElement {
 
     if (tasks === undefined) return;
 
+    const putTasks = [];
     for (let i = 0; i < tasks.length; i++) {
       const task = tasks[i];
-      putTask({
-        id: task.id,
-        is_done: false,
-      });
+      putTasks.push(
+        putTask({
+          id: task.id,
+          is_done: false,
+        })
+      );
     }
+
+    await Promise.all(putTasks);
+
+    queryCache.invalidateQueries([NTask, {}, 'GET']);
   }
 
   async function onMarkAllDone(
@@ -47,13 +55,20 @@ function TaskPage(): ReactElement {
 
     if (tasks === undefined) return;
 
+    const putTasks = [];
     for (let i = 0; i < tasks.length; i++) {
       const task = tasks[i];
-      putTask({
-        id: task.id,
-        is_done: true,
-      });
+      putTasks.push(
+        putTask({
+          id: task.id,
+          is_done: true,
+        })
+      );
     }
+
+    await Promise.all(putTasks);
+
+    queryCache.invalidateQueries([NTask, {}, 'GET']);
   }
 
   async function onOpenTaskCreateDetails(

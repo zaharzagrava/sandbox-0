@@ -47,11 +47,11 @@ function TaskDetails(): ReactElement {
             </button>
           </div>
         </div>
-        <h4 className="row py-2">{task.title}</h4>
-        <p className="row py-2">{task.task_description}</p>
-        <p className="row py-2">{task.is_done ? 'Done' : 'Active'}</p>
-        <p className="row py-2">{task.task_priority}</p>
-        <p className="row py-2">{task.due_date}</p>
+        <h4 className="row">{task.title}</h4>
+        <p className="row">{task.task_description}</p>
+        <p className="row">{task.is_done ? 'Done' : 'Active'}</p>
+        <p className="row">{task.task_priority}</p>
+        <p className="row">{task.due_date}</p>
       </div>
     </ReactModal>
   );
