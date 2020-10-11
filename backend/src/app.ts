@@ -120,6 +120,11 @@ const main = async () => {
       try {
         const newClientData: ClientDT = req.body;
 
+        console.log('@newClientData');
+        console.log(newClientData);
+        console.log('@req.body');
+        console.log(req.body);
+
         // Register our user, and test whether username / email are valid
         const newClient = await Client.create<any>({
           client_name: newClientData.client_name,
