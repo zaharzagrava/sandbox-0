@@ -17,6 +17,8 @@ import { ClientTask } from './models/ClientTask';
 
 const clientReserbedURLs = ['/login', '/register'];
 
+console.log('@Starting the app');
+
 const main = async () => {
   if (!admin.apps.length) {
     admin.initializeApp({
@@ -58,14 +60,14 @@ const main = async () => {
   app.use(compression());
   app.use(express.json()); // allow app toaccept json
   app.use(cookieParser());
-  app.use(express.static(__dirname + '/clientbuild'));
+  app.use(express.static(__dirname + '/frontend'));
 
   app.use(async function (req: Request, res: Response, next: NextFunction) {
     try {
       const cookies: CookiesDT = req.cookies;
 
       if (req.url.includes('/login') || req.url.includes('/register')) {
-        res.sendFile(path.join(__dirname + '/clientbuild/index.html'));
+        res.sendFile(path.join(__dirname + '/frontend/index.html'));
       } else {
         // Test authorization
         if (!req.url.includes('/signup')) {

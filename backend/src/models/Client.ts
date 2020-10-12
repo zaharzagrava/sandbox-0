@@ -2,6 +2,8 @@ import { Sequelize, DataTypes } from 'sequelize';
 
 import { sequelize } from '../db';
 
+console.log('@4');
+
 export const Client = sequelize.define(
   'client',
   {

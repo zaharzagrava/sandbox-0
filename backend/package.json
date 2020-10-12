@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "docker-start": "node ./app.js",
     "start": "node ./build/app.js",
     "dev": "ts-node-dev --respawn ./src/app.ts",
     "build": "npx tsc -p ."
